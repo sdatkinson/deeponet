@@ -1,8 +1,10 @@
-deepxde
-matplotlib
+# File: requirements.txt
+# File Created: ???
+# Author: ???
+# Modified by Steven Atkinson (steven@atkinson.mn)
+# File modified: Friday, December 24th 2021, 12:56:26 pm
+
 numpy
-pathos
+pytest
 scipy
-seaborn
-sklearn
-tensorflow
+# sklearn

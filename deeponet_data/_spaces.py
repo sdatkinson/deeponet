@@ -1,15 +1,15 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# from __future__ import absolute_import
+# from __future__ import division
+# from __future__ import print_function
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pathos.pools import ProcessPool
+# from pathos.pools import ProcessPool
 from scipy import linalg, interpolate
 from sklearn import gaussian_process as gp
 
-import config
-from utils import eig
+# import config
+from .utils import eig
 
 
 class FinitePowerSeries:
@@ -46,7 +46,7 @@ class FiniteChebyshev:
 
 
 class GRF(object):
-    def __init__(self, T, kernel="RBF", length_scale=1, N=1000, interp="cubic"):
+    def __init__(self, T, kernel="RBF", length_scale=1, N=1000, interp="cubic", seed=None):
         self.N = N
         self.interp = interp
         self.x = np.linspace(0, T, num=N)[:, None]
@@ -56,11 +56,14 @@ class GRF(object):
             K = gp.kernels.Matern(length_scale=length_scale, nu=0.5)
         self.K = K(self.x)
         self.L = np.linalg.cholesky(self.K + 1e-13 * np.eye(self.N))
+        self._rng = np.random.default_rng(seed)
 
     def random(self, n):
-        """Generate `n` random feature vectors.
         """
-        u = np.random.randn(self.N, n)
+        Generate `n` random feature vectors.
+        """
+        shape = (self.N, n)
+        u = self._rng.normal(np.zeros(shape), np.ones(shape))
         return np.dot(self.L, u).T
 
     def eval_u_one(self, y, x):
@@ -79,8 +82,8 @@ class GRF(object):
         """
         if self.interp == "linear":
             return np.vstack([np.interp(sensors, np.ravel(self.x), y).T for y in ys])
-        p = ProcessPool(nodes=config.processes)
-        res = p.map(
+        # p = ProcessPool(nodes=processes)
+        res = map(
             lambda y: interpolate.interp1d(
                 np.ravel(self.x), y, kind=self.interp, copy=False, assume_sorted=True
             )(sensors).T,
