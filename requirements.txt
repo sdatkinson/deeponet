@@ -7,4 +7,4 @@
 numpy
 pytest
 scipy
-# sklearn
+sklearn
