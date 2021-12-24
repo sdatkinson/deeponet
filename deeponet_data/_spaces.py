@@ -2,8 +2,9 @@
 # from __future__ import division
 # from __future__ import print_function
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
+
 # from pathos.pools import ProcessPool
 from scipy import linalg, interpolate
 from sklearn import gaussian_process as gp
@@ -46,7 +47,9 @@ class FiniteChebyshev:
 
 
 class GRF(object):
-    def __init__(self, T, kernel="RBF", length_scale=1, N=1000, interp="cubic", seed=None):
+    def __init__(
+        self, T, kernel="RBF", length_scale=1, N=1000, interp="cubic", seed=None
+    ):
         self.N = N
         self.interp = interp
         self.x = np.linspace(0, T, num=N)[:, None]
@@ -67,8 +70,7 @@ class GRF(object):
         return np.dot(self.L, u).T
 
     def eval_u_one(self, y, x):
-        """Compute the function value at `x` for the feature `y`.
-        """
+        """Compute the function value at `x` for the feature `y`."""
         if self.interp == "linear":
             return np.interp(x, np.ravel(self.x), y)
         f = interpolate.interp1d(
@@ -116,13 +118,11 @@ class GRF_KL(object):
         return np.array([np.ravel(f(sensors)) for f in self.eigfun])
 
     def random(self, n):
-        """Generate `n` random feature vectors.
-        """
+        """Generate `n` random feature vectors."""
         return np.random.randn(n, self.num_eig)
 
     def eval_u_one(self, y, x):
-        """Compute the function value at `x` for the feature `y`.
-        """
+        """Compute the function value at `x` for the feature `y`."""
         eigfun = [f(x) for f in self.eigfun]
         return np.sum(eigfun * y)
 
@@ -157,7 +157,10 @@ def main():
 
     space1 = GRF(1, length_scale=0.1, N=100, interp="cubic")
     space2 = GRF(1, length_scale=1, N=100, interp="cubic")
-    W2 = np.trace(space1.K + space2.K - 2 * linalg.sqrtm(space1.K @ space2.K)) ** 0.5 / 100 ** 0.5
+    W2 = (
+        np.trace(space1.K + space2.K - 2 * linalg.sqrtm(space1.K @ space2.K)) ** 0.5
+        / 100 ** 0.5
+    )
     print(W2)
 
 
