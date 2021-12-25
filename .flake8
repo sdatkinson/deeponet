@@ -1,0 +1,6 @@
+# Filename: .flake8
+# Created Date: Friday, December 24th 2021, 4:53:28 pm
+# Author: Steven Atkinson (steven@atkinson.mn)
+
+[flake8]
+max-line-length=88

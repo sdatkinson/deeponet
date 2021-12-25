@@ -65,8 +65,7 @@ def safe_test(model, data, X_test, y_test, fname=None):
 
 
 def eig(kernel, num, Nx, eigenfunction=True):
-    """Compute the eigenvalues and eigenfunctions of a kernel on [0, 1].
-    """
+    """Compute the eigenvalues and eigenfunctions of a kernel on [0, 1]."""
     h = 1 / (Nx - 1)
     c = kernel(np.linspace(0, 1, num=Nx)[:, None])[0] * h
     A = np.empty((Nx, Nx))
@@ -89,10 +88,12 @@ def eig(kernel, num, Nx, eigenfunction=True):
 
 
 def trapz(y, dx):
-    """Integrate [y(x1), y(x2), ...] or [[y1(x1), y1(x2), ...], [y2(x1), y2(x2), ...], ...]
+    """
+    Integrate [y(x1), y(x2), ...] or [[y1(x1), y1(x2), ...], [y2(x1), y2(x2), ...], ...]
     using the composite trapezoidal rule.
 
-    Return: [I1(x1)=0, I1(x2), ...] or [[I1(x1)=0, I1(x2), ...], [I2(x1)=0, I2(x2), ...], ...]
+    Return: [I1(x1)=0, I1(x2), ...] or [[I1(x1)=0, I1(x2), ...],[I2(x1)=0, I2(x2), ...],
+    ...]
     """
     if len(y.shape) == 1:
         left = np.cumsum(y)[:-1]
@@ -104,8 +105,9 @@ def trapz(y, dx):
 
 
 def make_triple(sensor_value, x, y, num):
-    """For a `sensor_value` of `u`, a list of locations `x` and the corresponding solution `y`,
-    generate a dataset of `num` triples.
+    """
+    For a `sensor_value` of `u`, a list of locations `x` and the corresponding solution
+    `y`, generate a dataset of `num` triples.
 
     sensor_value: 1d array
     x: 2d array, N x d
