@@ -6,12 +6,9 @@
 
 
 import numpy as np
-
-# from pathos.pools import ProcessPool
-from scipy import linalg, interpolate
+from scipy import interpolate
 from sklearn import gaussian_process as gp
 
-# import config
 from .utils import eig
 
 
@@ -134,37 +131,3 @@ class GRF_KL(object):
         """
         eigfun = np.array([np.ravel(f(sensors)) for f in self.eigfun])
         return np.dot(ys, eigfun)
-
-
-def space_samples(space, T):
-    features = space.random(100000)
-    sensors = np.linspace(0, T, num=1000)
-    u = space.eval_u(features, sensors[:, None])
-
-    plt.plot(sensors, np.mean(u, axis=0), "k")
-    plt.plot(sensors, np.std(u, axis=0), "k--")
-    plt.plot(sensors, np.cov(u.T)[0], "k--")
-    plt.plot(sensors, np.exp(-0.5 * sensors ** 2 / 0.2 ** 2))
-    for ui in u[:3]:
-        plt.plot(sensors, ui)
-    plt.show()
-
-
-def main():
-    # space = FinitePowerSeries(N=100, M=1)
-    # space = FiniteChebyshev(N=20, M=1)
-    # space = GRF(1, length_scale=0.2, N=1000, interp="cubic")
-    # space = GRF_KL(1, length_scale=0.2, num_eig=10, N=100, interp="cubic")
-    # space_samples(space, 1)
-
-    space1 = GRF(1, length_scale=0.1, N=100, interp="cubic")
-    space2 = GRF(1, length_scale=1, N=100, interp="cubic")
-    W2 = (
-        np.trace(space1.K + space2.K - 2 * linalg.sqrtm(space1.K @ space2.K)) ** 0.5
-        / 100 ** 0.5
-    )
-    print(W2)
-
-
-if __name__ == "__main__":
-    main()

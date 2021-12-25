@@ -15,16 +15,20 @@ from .utils import timing
 
 class LTSystem(object):
     def __init__(self, npoints_output):
-        """Legendre transform J_n{f(x)}.
+        """
+        Legendre transform J_n{f(x)}.
 
         Args:
-            npoints_output: For a input function, choose n=0,1,2,...,`npoints_output`-1 as data.
+            npoints_output: For a input function, choose n=0,1,2,...,`npoints_output`-1
+            as data.
         """
         self.npoints_output = npoints_output
 
     @timing
     def gen_operator_data(self, space, m, num):
-        """For each input function, generate `npoints_output` data, so the total number N = num x npoints_output."""
+        """For each input function, generate `npoints_output` data, so the total number
+        N = num x npoints_output.
+        """
         print("Generating operator data...", flush=True)
         features = space.random(num)
         sensors = np.linspace(0, 2, num=m)[:, None]
@@ -38,7 +42,9 @@ class LTSystem(object):
         return [sensor_values_tile, ns], s_values
 
     def eval_s(self, sensor_value):
-        """Compute J_n{f(x)} for a `sensor_value` of `f` with n=0,1,...,'npoints_output'-1."""
+        """
+        Compute J_n{f(x)} for a `sensor_value` of `f` with n=0,1,...,'npoints_output'-1.
+        """
         x = np.linspace(-1, 1, num=10000)
         samplings = interpolate.interp1d(
             np.linspace(-1, 1, len(sensor_value)), sensor_value, kind="cubic"
@@ -79,7 +85,10 @@ class ODESystem(object):
         return np.array(list(res))
 
     def eval_s_func(self, u, x):
-        """For an input function `u` and a list `x`, compute the corresponding list of outputs."""
+        """
+        For an input function `u` and a list `x`, compute the corresponding list of
+        outputs.
+        """
         res = map(lambda xi: self.eval_s(u, xi[0]), x)
         return np.array(list(res))
 
@@ -100,7 +109,8 @@ class DRSystem(object):
         Args:
             T: Time [0, T].
             Nt: Nt in FDM
-            npoints_output: For a input function, randomly choose these many points from the solver output as data
+            npoints_output: For a input function, randomly choose these many points from
+            the solver output as data
         """
         self.D = D
         self.k = k
@@ -110,7 +120,10 @@ class DRSystem(object):
 
     @timing
     def gen_operator_data(self, space, m, num):
-        """For each input function, generate `npoints_output` data, so the total number N = num x npoints_output."""
+        """
+        For each input function, generate `npoints_output` data, so the total number
+        N = num x npoints_output.
+        """
         print("Generating operator data...", flush=True)
         features = space.random(num)
         sensors = np.linspace(0, 1, num=m)[:, None]
@@ -122,7 +135,8 @@ class DRSystem(object):
         return [res[:, :m], res[:, m:-1]], res[:, -1:]
 
     def eval_s_sampling(self, sensor_value, s):
-        """Given a `sensor_value` of `u` and the corresponding solution `s`, generate the
+        """
+        Given a `sensor_value` of `u` and the corresponding solution `s`, generate the
         sampling outputs.
         """
         m = sensor_value.shape[0]
@@ -133,7 +147,10 @@ class DRSystem(object):
         return np.hstack([np.tile(sensor_value, (self.npoints_output, 1)), xt, y])
 
     def eval_s(self, sensor_value):
-        """Compute s(x, t) over m * Nt points for a `sensor_value` of `u`."""
+        """
+        Compute s(x, t) over m * Nt points for a `sensor_value` of `u`.
+        """
+        """
         return solve_ADR(
             0,
             1,
@@ -148,6 +165,7 @@ class DRSystem(object):
             len(sensor_value),
             self.Nt,
         )[2]
+        """
 
 
 class CVCSystem(object):
@@ -157,7 +175,8 @@ class CVCSystem(object):
         Args:
             T: Time [0, T].
             Nt: Nt in FDM
-            npoints_output: For a input function, randomly choose these many points from the solver output as data
+            npoints_output: For a input function, randomly choose these many points from
+            the solver output as data
         """
         self.f = f
         self.g = g
@@ -167,7 +186,10 @@ class CVCSystem(object):
 
     @timing
     def gen_operator_data(self, space, m, num):
-        """For each input function, generate `npoints_output` data, so the total number N = num x npoints_output."""
+        """
+        For each input function, generate `npoints_output` data, so the total number
+        N = num x npoints_output.
+        """
         print("Generating operator data...", flush=True)
         features = space.random(num)
         sensors = np.linspace(0, 1, num=m)[:, None]
@@ -184,7 +206,8 @@ class CVCSystem(object):
         return [res[:, :m], res[:, m:-1]], res[:, -1:]
 
     def eval_s_sampling(self, sensor_value, s):
-        """Given a `sensor_value` of `u` and the corresponding solution `s`, generate the
+        """
+        Given a `sensor_value` of `u` and the corresponding solution `s`, generate the
         sampling outputs.
         """
         m = sensor_value.shape[0]
@@ -197,19 +220,19 @@ class CVCSystem(object):
     def eval_s(self, sensor_value):
         """Compute s(x, t) over m * Nt points for a `sensor_value` of `u`."""
         # Case I: Analytical solution for a(x)=1, u(x,0)=V(x)    (V,V' periodic)
-        return solve_CVC(
-            0,
-            1,
-            0,
-            self.T,
-            self.f,
-            self.g,
-            interpolate.interp1d(
-                np.linspace(0, 1, len(sensor_value)), sensor_value, kind="cubic"
-            ),
-            len(sensor_value),
-            self.Nt,
-        )[2]
+        # return solve_CVC(
+        #     0,
+        #     1,
+        #     0,
+        #     self.T,
+        #     self.f,
+        #     self.g,
+        #     interpolate.interp1d(
+        #         np.linspace(0, 1, len(sensor_value)), sensor_value, kind="cubic"
+        #     ),
+        #     len(sensor_value),
+        #     self.Nt,
+        # )[2]
         # Case II: Wendroff for a(x)=1, u(x,0)=f(x), u(0,t)=g(t)    (f(0)=g(0))
         """
         return solve_CVC(
@@ -224,7 +247,7 @@ class CVCSystem(object):
             self.Nt,
         )[2]
         """
-        # Case III: Wendroff for a(x)=1+0.1*V(x), u(x,0)=f(x), u(0,t)=g(t)    (f(0)=g(0))
+        # Case III: Wendroff for a(x)=1+0.1*V(x), u(x,0)=f(x), u(0,t)=g(t)   (f(0)=g(0))
         """
         return solve_CVC(
             0,
@@ -238,7 +261,7 @@ class CVCSystem(object):
             self.Nt,
         )[2]
         """
-        # Case IV: Wendroff for a(x)=1+0.1*(V(x)+V(1-x))/2, u(x,0)=f(x)    (f,f' periodic)
+        # Case IV: Wendroff for a(x)=1+0.1*(V(x)+V(1-x))/2, u(x,0)=f(x)  (f,f' periodic)
         """
         return solve_CVC(
             0,
@@ -261,7 +284,8 @@ class ADVDSystem(object):
         Args:
             T: Time [0, T].
             Nt: Nt in FDM
-            npoints_output: For a input function, randomly choose these many points from the solver output as data
+            npoints_output: For a input function, randomly choose these many points from
+            the solver output as data
         """
         self.f = f
         self.g = g
@@ -271,7 +295,8 @@ class ADVDSystem(object):
 
     @timing
     def gen_operator_data(self, space, m, num):
-        """For each input function, generate `npoints_output` data, so the total number N = num x npoints_output."""
+        """For each input function, generate `npoints_output` data, so the total number
+        N = num x npoints_output."""
         print("Generating operator data...", flush=True)
         features = space.random(num)
         sensors = np.linspace(0, 1, num=m)[:, None]
@@ -284,7 +309,8 @@ class ADVDSystem(object):
         return [res[:, :m], res[:, m:-1]], res[:, -1:]
 
     def eval_s_sampling(self, sensor_value, s):
-        """Given a `sensor_value` of `u` and the corresponding solution `s`, generate the
+        """
+        Given a `sensor_value` of `u` and the corresponding solution `s`, generate the
         sampling outputs.
         """
         m = sensor_value.shape[0]
@@ -295,7 +321,10 @@ class ADVDSystem(object):
         return np.hstack([np.tile(sensor_value, (self.npoints_output, 1)), xt, y])
 
     def eval_s(self, sensor_value):
-        """Compute s(x, t) over m * Nt points for a `sensor_value` of `u`."""
+        """
+        Compute s(x, t) over m * Nt points for a `sensor_value` of `u`.
+        """
+        """
         Nt_pc = (self.Nt - 1) * 10 + 1
         return solve_ADVD(
             0,
@@ -308,3 +337,4 @@ class ADVDSystem(object):
             len(sensor_value),
             Nt_pc,
         )[2][:, 0:Nt_pc:10]
+        """
