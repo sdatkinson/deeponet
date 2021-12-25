@@ -1,8 +1,10 @@
-# from __future__ import absolute_import
-# from __future__ import division
-# from __future__ import print_function
+# File: _spaces.py (formerly spaces.py)
+# File Created: ???
+# Author: ???
+# File Edited: Friday, 24th December 2021 2:03:41 pm
+# Edited by: Steven Atkinson (steven@atkinson.mn)
 
-# import matplotlib.pyplot as plt
+
 import numpy as np
 
 # from pathos.pools import ProcessPool

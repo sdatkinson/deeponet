@@ -1,18 +1,15 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# File: _system.py (originally system.py)
+# File Created: ???
+# Author: ???
+# File Edited: Friday, 24th December 2021 2:03:41 pm
+# Edited by: Steven Atkinson (steven@atkinson.mn)
+
 
 import numpy as np
-
-# from pathos.pools import ProcessPool
 from scipy import interpolate
 from scipy.integrate import solve_ivp
 from scipy.special import legendre
 
-# import config
-# from ADR_solver import solve_ADR
-# from ADVD_solver import solve_ADVD
-# from CVC_solver import solve_CVC
 from .utils import timing
 
 
