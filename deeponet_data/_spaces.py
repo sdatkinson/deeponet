@@ -4,6 +4,7 @@
 # File Edited: Friday, 24th December 2021 2:03:41 pm
 # Edited by: Steven Atkinson (steven@atkinson.mn)
 
+from typing import Optional
 
 import numpy as np
 from scipy import interpolate
@@ -13,12 +14,13 @@ from .utils import eig
 
 
 class FinitePowerSeries:
-    def __init__(self, N=100, M=1):
+    def __init__(self, N=100, M=1, seed: Optional[int] = None):
         self.N = N
         self.M = M
+        self._rng = np.random.default_rng(seed)
 
     def random(self, n):
-        return 2 * self.M * np.random.rand(n, self.N) - self.M
+        return self._rng.uniform(low=-self.M, high=self.M, size=(n, self.N))
 
     def eval_u_one(self, a, x):
         return np.dot(a, x ** np.arange(self.N))
@@ -31,12 +33,13 @@ class FinitePowerSeries:
 
 
 class FiniteChebyshev:
-    def __init__(self, N=100, M=1):
+    def __init__(self, N=100, M=1, seed: Optional[int] = None):
         self.N = N
         self.M = M
+        self._rng = np.random.default_rng(seed)
 
     def random(self, n):
-        return 2 * self.M * np.random.rand(n, self.N) - self.M
+        return self._rng.uniform(low=-self.M, high=self.M, size=(n, self.N))
 
     def eval_u_one(self, a, x):
         return np.polynomial.chebyshev.chebval(2 * x - 1, a)
@@ -95,7 +98,14 @@ class GRF(object):
 
 class GRF_KL(object):
     def __init__(
-        self, T, kernel="RBF", length_scale=1, num_eig=10, N=100, interp="cubic"
+        self,
+        T,
+        kernel="RBF",
+        length_scale=1,
+        num_eig=10,
+        N=100,
+        interp="cubic",
+        seed: Optional[int] = None,
     ):
         if not np.isclose(T, 1):
             raise ValueError("Only support T = 1.")
@@ -112,13 +122,16 @@ class GRF_KL(object):
             interpolate.interp1d(x, y, kind=interp, copy=False, assume_sorted=True)
             for y in eigvec.T
         ]
+        self._rng = np.random.default_rng(seed)
 
     def bases(self, sensors):
         return np.array([np.ravel(f(sensors)) for f in self.eigfun])
 
     def random(self, n):
-        """Generate `n` random feature vectors."""
-        return np.random.randn(n, self.num_eig)
+        """
+        Generate `n` random feature vectors.
+        """
+        return self._rng.normal(0.0, 1.0, (n, self.num_eig))
 
     def eval_u_one(self, y, x):
         """Compute the function value at `x` for the feature `y`."""

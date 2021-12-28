@@ -2,9 +2,9 @@
 # File Created: Friday, 24th December 2021 1:02:03 pm
 # Author: Steven Atkinson (steven@atkinson.mn)
 
-from enum import Enum
 from typing import Optional
 
+from . import Split
 from ._spaces import GRF
 from ._system import ODESystem
 
@@ -13,11 +13,6 @@ NUM_TRAIN = 10000
 NUM_TEST = 100000
 SPACE = GRF(1, length_scale=0.2, N=1000, interp="cubic")
 T = 1.0  # Length of time over which the ODE is deifned
-
-
-class Split(Enum):
-    TRAIN = "train"
-    TEST = "test"
 
 
 def _ode_system(T, seed: Optional[int] = None):
