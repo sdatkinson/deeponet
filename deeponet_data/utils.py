@@ -1,10 +1,13 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# File: utils.py
+# Created Date: ???
+# Author: ???
+# Modified: Sunday December 26th 2021
+# By: Steven Atkinson (steven@atkinson.mn)
 
 import sys
 import time
 from functools import wraps
+from typing import Optional
 
 import numpy as np
 
@@ -89,11 +92,15 @@ def eig(kernel, num, Nx, eigenfunction=True):
 
 def trapz(y, dx):
     """
-    Integrate [y(x1), y(x2), ...] or [[y1(x1), y1(x2), ...], [y2(x1), y2(x2), ...], ...]
+    Integrate [y(x1), y(x2), ...]
+    or
+    [[y1(x1), y1(x2), ...], [y2(x1), y2(x2), ...], ...]
     using the composite trapezoidal rule.
 
-    Return: [I1(x1)=0, I1(x2), ...] or [[I1(x1)=0, I1(x2), ...],[I2(x1)=0, I2(x2), ...],
-    ...]
+    Return:
+        [I1(x1)=0, I1(x2), ...]
+        or
+        [[I1(x1)=0, I1(x2), ...],[I2(x1)=0, I2(x2), ...],...]
     """
     if len(y.shape) == 1:
         left = np.cumsum(y)[:-1]
@@ -104,7 +111,9 @@ def trapz(y, dx):
     return np.hstack((np.zeros((len(y), 1)), (left + right) / 2 * dx))
 
 
-def make_triple(sensor_value, x, y, num):
+def make_triple(
+    sensor_value, x, y, num=None, rng: Optional[np.random.Generator] = None
+):
     """
     For a `sensor_value` of `u`, a list of locations `x` and the corresponding solution
     `y`, generate a dataset of `num` triples.
@@ -113,7 +122,12 @@ def make_triple(sensor_value, x, y, num):
     x: 2d array, N x d
     y: 1d array
     """
-    idx = np.random.choice(len(x), size=num, replace=False)
+    rng = np.random.default_rng() if rng is None else rng
+    idx = (
+        np.arange(len(x))
+        if num is None
+        else rng.choice(len(x), size=num, replace=False)
+    )
     x = x[idx]
     y = y[idx][:, None]
-    return np.hstack([np.tile(sensor_value, (num, 1)), x, y])
+    return np.hstack([np.tile(sensor_value, (len(idx), 1)), x, y])
