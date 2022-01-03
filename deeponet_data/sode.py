@@ -19,6 +19,8 @@ from .utils import make_triple, timing, trapz
 
 NX = 20  # Time points in solution
 M = 5  # Number of terms for stochastic process KLE expansion
+T = 1.0  # time 0 to T
+Y0 = 1.0  # Initial condition
 
 
 class _GRFs(object):
@@ -91,7 +93,7 @@ class _SODESystem(object):
         :param T: end time of integration
         :param y0: Initial condition?
         :param Nx: Number of time points (e.g. in linspace(0,T,Nx))
-        :param npoints_output: Number fo time points to be returned?
+        :param npoints_output: Number of time points to be returned?
         """
         self.T = T
         self.y0 = y0
@@ -210,11 +212,15 @@ def create_data(
     n: int,
     nx: int = NX,
     m: int = M,
+    T: float = T,
     seed: Optional[int] = None,
     npoints_output: Optional[int] = None,
 ) -> Tuple[Tuple[np.array, np.array], np.array]:
     """
-    :param npoints_output: How many points to keep for output. If None, keep all.
+    y dimensions are [KL stochastic coefs, time point]
+
+    :param npoints_output: How many points to keep for output v(y). If None,
+        keep all.
     """
     if nx <= 1:
         raise ValueError(f"Require at least nx=2 time points (got {nx}).")
@@ -224,10 +230,20 @@ def create_data(
     n = 10_000 if n is None else n
 
     system = _SODESystem(
-        1, 1, Nx=nx, npoints_output=npoints_output, seed=ss.spawn(1)[0]
+        T, Y0, Nx=nx, npoints_output=npoints_output, seed=ss.spawn(1)[0]
     )
-    # system = SPDESystem(1, 10, 100, None, 100)
-    space = _GRFs(1, "RBF", 1, 2, N=100, interp="linear", seed=ss.spawn(1)[0])
+
+    length_scale_min = 1.0
+    length_scale_max = 2.0
+    space = _GRFs(
+        T,
+        "RBF",
+        length_scale_min,
+        length_scale_max,
+        N=100,
+        interp="linear",
+        seed=ss.spawn(1)[0],
+    )
 
     return system.gen_operator_data_path(space, nx, m, n)
     # examples...
